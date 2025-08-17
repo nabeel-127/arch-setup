@@ -28,6 +28,14 @@ sudo pacman -S --needed --noconfirm \
     gamemode \
     lib32-gamemode
 
+# Install NVIDIA 32-bit libraries for Steam games (if NVIDIA GPU detected)
+if lspci | grep -qi nvidia; then
+    echo "🎮 Installing NVIDIA 32-bit libraries for gaming..."
+    if ! sudo pacman -S --needed --noconfirm lib32-nvidia-utils; then
+        echo "⚠️ Failed to install lib32-nvidia-utils (may cause issues with 32-bit games)"
+    fi
+fi
+
 # Install Steam (REQUIRES multilib for 32-bit support)
 echo "🎮 Installing Steam..."
 sudo pacman -S --needed --noconfirm steam

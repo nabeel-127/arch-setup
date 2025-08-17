@@ -46,4 +46,25 @@ sudo pacman -S --needed --noconfirm \
     vim \
     nano
 
+# GNOME Extensions app (for managing system tray extensions)
+if [[ "$XDG_CURRENT_DESKTOP" == "GNOME" ]]; then
+    echo "🧩 Installing GNOME Extensions app..."
+    if ! flatpak install -y flathub org.gnome.Extensions; then
+        echo "⚠️ Failed to install Extensions app"
+        echo "You can install it manually from GNOME Software"
+    else
+        echo "📝 Extensions app installed successfully!"
+        
+        # Install browser connector for web-based extension installation
+        echo "🌐 Installing GNOME browser connector..."
+        sudo pacman -S --needed --noconfirm gnome-browser-connector
+        
+        echo "💡 Extensions setup complete! Next steps:"
+        echo "   1. Open Extensions app"
+        echo "   2. Go to https://extensions.gnome.org/extension/615/appindicator-support/"
+        echo "   3. Install 'AppIndicator and KStatusNotifierItem Support'"
+        echo "   4. Enable the extension for Steam/Discord tray icons"
+    fi
+fi
+
 echo "✅ Core applications installed"
