@@ -26,7 +26,7 @@ arch-setup/
 ├── scripts/                   # Installation scripts
 │   ├── setup-package-stores.sh   # AUR helper (yay), Flatpak, Snap
 │   ├── install-core-apps.sh      # Discord, Opera, ProtonMail, Notion
-│   ├── setup-gaming.sh           # Steam, Gaming tools, Lutris
+│   ├── setup-gaming.sh           # Steam, Gaming tools, Heroic
 │   └── setup-ide.sh              # Development tools
 └── utils/                     # Utility scripts
     └── setup-ssh.sh              # SSH key generation
@@ -50,7 +50,6 @@ arch-setup/
 **Gaming:**
 - Steam (with multilib support)
 - Heroic Games Launcher (Epic/GOG)
-- Lutris (game management)
 - Wine + Winetricks
 - Vulkan drivers and tools
 - GameMode (performance optimization)
