@@ -29,7 +29,8 @@ arch-setup/
 │   ├── setup-gaming.sh           # Steam, Gaming tools, Heroic
 │   └── setup-ide.sh              # Development tools
 └── utils/                     # Utility scripts
-    └── setup-ssh.sh              # SSH key generation
+    ├── setup-ssh.sh              # SSH key generation
+    └── setup-gnome.sh            # GNOME desktop configuration
 ```
 
 ## What Gets Installed
@@ -62,6 +63,11 @@ arch-setup/
 - Python and pip
 - SSH keys for Git
 
+**GNOME Desktop Configuration:**
+- Fractional scaling support (Wayland)
+- XWayland native scaling
+- High-DPI display optimization
+
 ## Installation Priority
 
 1. Pacman (official Arch repositories)
@@ -72,6 +78,6 @@ arch-setup/
 ## Notes
 
 - NVIDIA drivers are not included as Arch maintains them in official repos
-- Display scaling setup has been removed - configure manually in your DE
+- GNOME fractional scaling is automatically configured for high-DPI displays
 - No specific code editor is installed - add your preferred one manually
 

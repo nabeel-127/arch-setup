@@ -34,6 +34,13 @@ if ! yay -S --noconfirm notion-app-electron; then
     echo "Continuing with other applications..."
 fi
 
+# Dropbox - via AUR (official desktop client)
+echo "📦 Installing Dropbox..."
+if ! yay -S --noconfirm dropbox; then
+    echo "❌ Failed to install Dropbox"
+    echo "Continuing with other applications..."
+fi
+
 # Essential utilities (neofetch replaced with fastfetch in Arch)
 echo "🔧 Installing essential utilities..."
 sudo pacman -S --needed --noconfirm \
@@ -46,8 +53,13 @@ sudo pacman -S --needed --noconfirm \
     vim \
     nano
 
-# GNOME Extensions app (for managing system tray extensions)
+# GNOME desktop essentials
 if [[ "$XDG_CURRENT_DESKTOP" == "GNOME" ]]; then
+    # Power profiles daemon for performance modes in power menu
+    echo "⚡ Installing power profiles daemon..."
+    sudo pacman -S --needed --noconfirm power-profiles-daemon
+    sudo systemctl enable --now power-profiles-daemon
+    
     echo "🧩 Installing GNOME Extensions app..."
     if ! flatpak install -y flathub org.gnome.Extensions; then
         echo "⚠️ Failed to install Extensions app"

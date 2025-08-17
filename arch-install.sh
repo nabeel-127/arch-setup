@@ -42,11 +42,24 @@ bash "$SCRIPT_DIR/scripts/install-core-apps.sh"
 echo "🎯 Setting up gaming..."
 bash "$SCRIPT_DIR/scripts/setup-gaming.sh"
 
-echo "🔑 Setting up SSH keys..."
-bash "$SCRIPT_DIR/utils/setup-ssh.sh"
+# Ask if user wants to setup SSH keys
+echo
+read -p "🔑 Do you want to setup SSH keys for Git? (y/n): " setup_ssh
+case "$setup_ssh" in
+    [Yy]|[Yy][Ee][Ss])
+        echo "🔑 Setting up SSH keys..."
+        bash "$SCRIPT_DIR/utils/setup-ssh.sh"
+        ;;
+    *)
+        echo "⏭️ Skipping SSH setup"
+        ;;
+esac
 
 echo "💻 Setting up development environment..."
 bash "$SCRIPT_DIR/scripts/setup-ide.sh"
+
+echo "🖥️  Configuring GNOME desktop..."
+bash "$SCRIPT_DIR/utils/setup-gnome.sh"
 
 # Clean up sudo timeout extension
 echo "🧹 Cleaning up temporary sudo settings..."
