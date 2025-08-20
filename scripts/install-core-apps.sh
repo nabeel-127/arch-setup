@@ -5,45 +5,37 @@ set -e
 
 echo "Installing core applications..."
 
-# Discord - via pacman
-echo "💬 Installing Discord..."
-sudo pacman -S --needed --noconfirm discord
-
-# Firefox - via pacman  
-echo "🦊 Installing Firefox..."
-sudo pacman -S --needed --noconfirm firefox
-
-# Opera - via AUR (skip PGP verification as it's a binary package from Opera)
-echo "🎭 Installing Opera..."
-if ! yay -S --noconfirm --mflags "--skippgpcheck" opera; then
-    echo "⚠️ Failed to install Opera"
+# Core applications via pacman
+echo "Installing Discord and Firefox..."
+if ! sudo pacman -S --needed --noconfirm discord firefox; then
+    echo "Failed to install some core applications"
     echo "Continuing with other applications..."
 fi
 
-# ProtonMail Bridge - via Flathub
-echo "📧 Installing ProtonMail Bridge..."
-if ! flatpak install -y flathub ch.protonmail.protonmail-bridge; then
-    echo "❌ Failed to install ProtonMail Bridge"
+# Opera - via AUR (skip PGP verification as it's a binary package from Opera)
+echo "Installing Opera..."
+if ! yay -S --noconfirm --mflags "--skippgpcheck" opera; then
+    echo "Failed to install Opera"
+    echo "Continuing with other applications..."
+fi
+
+# Proton Mail (Official Client) - via Flathub
+echo "Installing Proton Mail..."
+if ! flatpak install -y flathub me.proton.Mail; then
+    echo "Failed to install Proton Mail"
     echo "Continuing with other applications..."
 fi
 
 # Notion - via AUR (official desktop app)
-echo "📝 Installing Notion..."
+echo "Installing Notion..."
 if ! yay -S --noconfirm notion-app-electron; then
-    echo "❌ Failed to install Notion"
+    echo "Failed to install Notion"
     echo "Continuing with other applications..."
 fi
 
-# Dropbox - via AUR (official desktop client)
-echo "📦 Installing Dropbox..."
-if ! yay -S --noconfirm dropbox; then
-    echo "❌ Failed to install Dropbox"
-    echo "Continuing with other applications..."
-fi
-
-# Essential utilities (neofetch replaced with fastfetch in Arch)
-echo "🔧 Installing essential utilities..."
-sudo pacman -S --needed --noconfirm \
+# Essential utilities, video codecs, and qBittorrent via pacman
+echo "Installing essential utilities and codecs..."
+if ! sudo pacman -S --needed --noconfirm \
     htop \
     fastfetch \
     tree \
@@ -51,32 +43,50 @@ sudo pacman -S --needed --noconfirm \
     wget \
     curl \
     vim \
-    nano
+    nano \
+    iw \
+    wireless_tools \
+    gst-plugins-base \
+    gst-plugins-good \
+    gst-plugins-bad \
+    gst-plugins-ugly \
+    gst-libav \
+    ffmpeg \
+    libva-mesa-driver \
+    libvdpau-va-gl \
+    mesa-vdpau \
+    x264 \
+    x265 \
+    libde265 \
+    libvpx \
+    opus \
+    qbittorrent; then
+    echo "Some utilities, codecs, or qBittorrent failed to install"
+    echo "Continuing with other applications..."
+fi
 
 # GNOME desktop essentials
 if [[ "$XDG_CURRENT_DESKTOP" == "GNOME" ]]; then
-    # Power profiles daemon for performance modes in power menu
-    echo "⚡ Installing power profiles daemon..."
-    sudo pacman -S --needed --noconfirm power-profiles-daemon
-    sudo systemctl enable --now power-profiles-daemon
-    
-    echo "🧩 Installing GNOME Extensions app..."
-    if ! flatpak install -y flathub org.gnome.Extensions; then
-        echo "⚠️ Failed to install Extensions app"
-        echo "You can install it manually from GNOME Software"
+    # GNOME essentials via pacman
+    echo "Installing GNOME essentials..."
+    if ! sudo pacman -S --needed --noconfirm power-profiles-daemon gnome-browser-connector; then
+        echo "Failed to install some GNOME essentials"
+        echo "Continuing with other applications..."
     else
-        echo "📝 Extensions app installed successfully!"
-        
-        # Install browser connector for web-based extension installation
-        echo "🌐 Installing GNOME browser connector..."
-        sudo pacman -S --needed --noconfirm gnome-browser-connector
-        
-        echo "💡 Extensions setup complete! Next steps:"
-        echo "   1. Open Extensions app"
-        echo "   2. Go to https://extensions.gnome.org/extension/615/appindicator-support/"
-        echo "   3. Install 'AppIndicator and KStatusNotifierItem Support'"
-        echo "   4. Enable the extension for Steam/Discord tray icons"
+        sudo systemctl enable --now power-profiles-daemon
+    fi
+    
+    # Install libappindicator for tray icon support (required by Discord, etc.)
+    echo "Installing AppIndicator libraries..."
+    if ! sudo pacman -S --needed --noconfirm libayatana-appindicator libappindicator-gtk3; then
+        echo "Failed to install AppIndicator libraries"
+        echo "Tray icons for Discord and other apps may not work properly"
+    fi
+    
+    echo "Installing GNOME Extensions app..."
+    if ! flatpak install -y flathub org.gnome.Extensions; then
+        echo "Failed to install Extensions app"
     fi
 fi
 
-echo "✅ Core applications installed"
+echo "Core applications installed"
