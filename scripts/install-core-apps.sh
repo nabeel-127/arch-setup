@@ -17,6 +17,13 @@ echo "Installing Opera..."
 if ! yay -S --noconfirm --mflags "--skippgpcheck" opera; then
     echo "Failed to install Opera"
     echo "Continuing with other applications..."
+else
+    # Install Opera FFmpeg codecs for video playback
+    echo "Installing Opera FFmpeg codecs for video support..."
+    if ! yay -S --noconfirm opera-ffmpeg-codecs-bin; then
+        echo "Failed to install Opera FFmpeg codecs"
+        echo "Video playback in Opera may not work properly"
+    fi
 fi
 
 # Proton Mail (Official Client) - via Flathub
@@ -33,8 +40,8 @@ if ! yay -S --noconfirm notion-app-electron; then
     echo "Continuing with other applications..."
 fi
 
-# Essential utilities, video codecs, and qBittorrent via pacman
-echo "Installing essential utilities and codecs..."
+# Essential utilities and media support via pacman
+echo "Installing essential utilities and media support..."
 if ! sudo pacman -S --needed --noconfirm \
     htop \
     fastfetch \
@@ -48,21 +55,42 @@ if ! sudo pacman -S --needed --noconfirm \
     wireless_tools \
     gst-plugins-base \
     gst-plugins-good \
-    gst-plugins-bad \
-    gst-plugins-ugly \
-    gst-libav \
     ffmpeg \
     libva-mesa-driver \
-    libvdpau-va-gl \
-    mesa-vdpau \
-    x264 \
-    x265 \
-    libde265 \
-    libvpx \
-    opus \
+    pipewire-pulse \
+    wireplumber \
+    alsa-utils \
     qbittorrent; then
     echo "Some utilities, codecs, or qBittorrent failed to install"
     echo "Continuing with other applications..."
+fi
+
+# Additional browser video/audio support packages
+echo "Installing additional browser video support..."
+if ! sudo pacman -S --needed --noconfirm \
+    lib32-mesa \
+    lib32-libva-mesa-driver \
+    lib32-mesa-vdpau \
+    libva-utils \
+    vdpauinfo \
+    alsa-utils \
+    pulseaudio-alsa; then
+    echo "Some browser video support packages failed to install"
+    echo "Video playback in browsers may have issues"
+fi
+
+# NVIDIA-specific video acceleration (if NVIDIA GPU detected)
+if lspci | grep -i nvidia > /dev/null; then
+    echo "NVIDIA GPU detected, installing NVIDIA video acceleration..."
+    if ! sudo pacman -S --needed --noconfirm \
+        libva-nvidia-driver \
+        lib32-libva-nvidia-driver \
+        nvidia-prime; then
+        echo "Failed to install NVIDIA video acceleration packages"
+        echo "NVIDIA video acceleration may not work properly"
+    fi
+else
+    echo "No NVIDIA GPU detected, skipping NVIDIA-specific packages"
 fi
 
 # GNOME desktop essentials
