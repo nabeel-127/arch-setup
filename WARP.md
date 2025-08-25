@@ -25,6 +25,9 @@ bash scripts/setup-gaming.sh
 # Setup development tools (Node.js, Python, build tools)
 bash scripts/setup-ide.sh
 
+# Setup thermal management (CRITICAL for laptops - prevents overheating crashes)
+bash scripts/setup-thermal.sh
+
 # Generate SSH keys for Git
 bash utils/setup-ssh.sh
 ```

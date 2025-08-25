@@ -7,7 +7,8 @@ UDEV_FILE="/etc/udev/rules.d/80-wifi-powersave.rules"
 
 echo "1) Disable power save permanently (survives reboot)"
 echo "2) Remove permanent disable (restore default)"
-read -p "Choice [1-2]: " choice
+echo "3) Skip/bypass this script"
+read -p "Choice [1-3]: " choice
 
 if [ "$choice" = "1" ]; then
     sudo bash -c "cat > $UDEV_FILE << 'EOF'
@@ -21,6 +22,9 @@ elif [ "$choice" = "2" ]; then
     sudo iw dev wlan0 set power_save on
     echo "✓ Permanent disable removed"
     
+elif [ "$choice" = "3" ]; then
+    echo "Skipping WiFi power management configuration"
+    exit 0
 else
     echo "Invalid choice"
     exit 1

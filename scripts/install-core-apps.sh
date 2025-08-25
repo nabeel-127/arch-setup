@@ -14,13 +14,13 @@ fi
 
 # Opera - via AUR (skip PGP verification as it's a binary package from Opera)
 echo "Installing Opera..."
-if ! yay -S --noconfirm --mflags "--skippgpcheck" opera; then
+if ! yay -S --needed --noconfirm --mflags "--skippgpcheck" opera; then
     echo "Failed to install Opera"
     echo "Continuing with other applications..."
 else
     # Install Opera FFmpeg codecs for video playback
     echo "Installing Opera FFmpeg codecs for video support..."
-    if ! yay -S --noconfirm opera-ffmpeg-codecs-bin; then
+    if ! yay -S --needed --noconfirm opera-ffmpeg-codecs-bin; then
         echo "Failed to install Opera FFmpeg codecs"
         echo "Video playback in Opera may not work properly"
     fi
@@ -35,8 +35,15 @@ fi
 
 # Notion - via AUR (official desktop app)
 echo "Installing Notion..."
-if ! yay -S --noconfirm notion-app-electron; then
+if ! yay -S --needed --noconfirm notion-app-electron; then
     echo "Failed to install Notion"
+    echo "Continuing with other applications..."
+fi
+
+# Cursor IDE - AI-first coding environment via AUR
+echo "Installing Cursor IDE..."
+if ! yay -S --needed --noconfirm cursor-bin; then
+    echo "Failed to install Cursor IDE"
     echo "Continuing with other applications..."
 fi
 
@@ -74,7 +81,6 @@ if ! sudo pacman -S --needed --noconfirm \
     lib32-mesa-vdpau \
     libva-utils \
     vdpauinfo \
-    alsa-utils \
     pulseaudio-alsa; then
     echo "Some browser video support packages failed to install"
     echo "Video playback in browsers may have issues"

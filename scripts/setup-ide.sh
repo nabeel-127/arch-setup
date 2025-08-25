@@ -15,7 +15,6 @@ sudo pacman -S --needed --noconfirm \
     dotnet-sdk \
     docker \
     docker-compose \
-    curl \
     cmake \
     jq \
     openbsd-netcat \

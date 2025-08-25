@@ -58,12 +58,22 @@ esac
 echo "Setting up development environment..."
 bash "$SCRIPT_DIR/scripts/setup-ide.sh"
 
+echo "Setting up thermal management (critical for HP laptops)..."
+bash "$SCRIPT_DIR/scripts/setup-thermal.sh"
+
+echo "Setting up network optimization (reduces WiFi jitter)..."
+bash "$SCRIPT_DIR/scripts/setup-network-optimization.sh"
+
 echo "Configuring GNOME desktop..."
 bash "$SCRIPT_DIR/utils/setup-gnome.sh"
+
+# System cleanup - remove orphaned packages (Arch equivalent of apt autoremove)
+echo "Removing orphaned packages..."
+sudo pacman -Rns --noconfirm $(pacman -Qtdq) 2>/dev/null || echo "No orphaned packages to remove"
 
 # Clean up sudo timeout extension
 echo "Cleaning up temporary sudo settings..."
 sudo rm -f /etc/sudoers.d/temp_install_timeout
 
 echo "Arch Linux setup complete!"
-echo "Please reboot to ensure all changes take effect."
+echo "System cleanup finished. Please reboot to ensure all changes take effect."

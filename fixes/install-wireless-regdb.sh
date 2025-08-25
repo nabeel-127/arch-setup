@@ -6,7 +6,8 @@
 
 echo "1) Install wireless-regdb (CRITICAL - fixes jitter)"
 echo "2) Check regulatory database status"
-read -p "Choice [1-2]: " choice
+echo "3) Skip/bypass this script"
+read -p "Choice [1-3]: " choice
 
 if [ "$choice" = "1" ]; then
     echo "Installing wireless regulatory database..."
@@ -25,6 +26,9 @@ elif [ "$choice" = "2" ]; then
         echo "This is likely causing your WiFi jitter!"
     fi
     
+elif [ "$choice" = "3" ]; then
+    echo "Skipping wireless-regdb installation"
+    exit 0
 else
     echo "Invalid choice"
     exit 1
