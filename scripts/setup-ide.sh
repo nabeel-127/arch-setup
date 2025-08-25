@@ -11,6 +11,14 @@ sudo pacman -S --needed --noconfirm \
     nodejs \
     npm \
     python \
-    python-pip
+    python-pip \
+    dotnet-sdk \
+    docker \
+    docker-compose \
+    curl \
+    cmake \
+    jq \
+    openbsd-netcat \
+    postgresql
 
 echo "Development environment setup complete"

@@ -65,6 +65,7 @@ if ! sudo pacman -S --needed --noconfirm \
     echo "Continuing with other applications..."
 fi
 
+
 # Additional browser video/audio support packages
 echo "Installing additional browser video support..."
 if ! sudo pacman -S --needed --noconfirm \
