@@ -33,6 +33,13 @@ if ! flatpak install -y flathub me.proton.Mail; then
     echo "Continuing with other applications..."
 fi
 
+# Dropbox (Official Client) - via Flathub
+echo "Installing Dropbox..."
+if ! flatpak install -y flathub com.dropbox.Client; then
+    echo "Failed to install Dropbox"
+    echo "Continuing with other applications..."
+fi
+
 # Notion - via AUR (official desktop app)
 echo "Installing Notion..."
 if ! yay -S --needed --noconfirm notion-app-electron; then

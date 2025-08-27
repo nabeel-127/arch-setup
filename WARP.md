@@ -64,6 +64,11 @@ bash -x scripts/setup-package-stores.sh  # Run with debug output
 ### High-Level Structure
 This is a modular Arch Linux post-installation automation system designed around bash scripts that follow a specific execution order and dependency chain.
 
+**Directory Structure:**
+- `scripts/` - Main installation and setup scripts
+- `utils/` - Utility scripts (SSH setup, etc.)
+- `configs/` - Custom configuration files (thermal profiles, etc.)
+
 ### Core Components
 
 **Main Orchestrator (`arch-install.sh`)**
