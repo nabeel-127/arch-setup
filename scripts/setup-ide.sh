@@ -13,11 +13,21 @@ sudo pacman -S --needed --noconfirm \
     python \
     python-pip \
     dotnet-sdk \
+    aspnet-runtime \
     docker \
     docker-compose \
     cmake \
     jq \
     openbsd-netcat \
-    postgresql
+    postgresql \
+    mariadb \
+    apache \
+    php \
+    php-apache \
+    phpmyadmin
+
+# Enable PHP MySQL extensions
+echo 'extension=mysqli' | sudo tee /etc/php/conf.d/mysqli.ini
+echo 'extension=pdo_mysql' | sudo tee /etc/php/conf.d/pdo_mysql.ini
 
 echo "Development environment setup complete"

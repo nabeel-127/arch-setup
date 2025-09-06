@@ -12,18 +12,11 @@ if ! sudo pacman -S --needed --noconfirm discord firefox; then
     echo "Continuing with other applications..."
 fi
 
-# Opera - via AUR (skip PGP verification as it's a binary package from Opera)
+# Opera (Sandboxed) - via Flathub
 echo "Installing Opera..."
-if ! yay -S --needed --noconfirm --mflags "--skippgpcheck" opera; then
+if ! flatpak install -y flathub com.opera.Opera; then
     echo "Failed to install Opera"
     echo "Continuing with other applications..."
-else
-    # Install Opera FFmpeg codecs for video playback
-    echo "Installing Opera FFmpeg codecs for video support..."
-    if ! yay -S --needed --noconfirm opera-ffmpeg-codecs-bin; then
-        echo "Failed to install Opera FFmpeg codecs"
-        echo "Video playback in Opera may not work properly"
-    fi
 fi
 
 # Proton Mail (Official Client) - via Flathub
@@ -37,6 +30,13 @@ fi
 echo "Installing Dropbox..."
 if ! flatpak install -y flathub com.dropbox.Client; then
     echo "Failed to install Dropbox"
+    echo "Continuing with other applications..."
+fi
+
+# Microsoft Edge (Sandboxed) - via Flathub
+echo "Installing Microsoft Edge..."
+if ! flatpak install -y flathub com.microsoft.Edge; then
+    echo "Failed to install Microsoft Edge"
     echo "Continuing with other applications..."
 fi
 

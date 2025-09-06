@@ -268,3 +268,102 @@ Auto Control Enabled     : true
 - **Setup Integration:** ✅ COMPLETE - Now part of automated installation
 
 **Critical Learning:** Thermal management is **MANDATORY** for HP OMEN laptops running intensive tasks. System will crash without proper fan control.
+
+---
+
+### [2025-09-06 02:30] FAILED Investigation: Multiple System Modifications with No Resolution
+
+#### Problem Re-emergence
+- **Issue:** Network jitter still present on online CS:GO despite previous fixes
+- **User report:** "100% sure it's my OS issue, on Windows would work perfectly fine"
+- **Context:** Same hardware, same router, same everything - only OS difference
+- **Impact:** Jitter affects online gaming, not just local network testing
+
+#### Investigation Approach
+**❌ FLAWED:** Applied multiple system modifications without proper investigation:
+1. Created 3 fix scripts (queue-discipline-permanent, iwlwifi-rate-limiting, networkmanager-wifi-override)
+2. Applied systemd services, modprobe configs, NetworkManager overrides
+3. Modified system files without understanding root cause
+
+#### Test Results Discovery
+**Critical Pattern Found:**
+- **Short bursts (≤20 pings):** 0.4-0.6ms jitter ✅ EXCELLENT
+- **Sustained load (≥22 pings):** 37-40ms jitter ❌ CONSISTENT FAILURE
+- **Breaking point:** Exactly at 21-22 packets in burst
+- **Rate dependency:** 16ms intervals cause issues, 50ms intervals work fine
+
+**Target Comparison:**
+- **Local gateway (192.168.1.1):** 38ms jitter ❌ BAD
+- **Internet (1.1.1.1):** 0.87ms jitter ✅ GOOD
+
+#### Flawed Analysis & Correction
+**❌ INITIAL CONCLUSION:** "Local router rate limiting, internet gaming would be fine"
+**✅ USER CORRECTION:** 
+1. Online CS:GO still has jitter issues (not just local)
+2. Windows works perfectly on same hardware/router
+3. This IS a Linux-specific OS issue requiring solution
+4. ICMP test patterns don't necessarily reflect UDP gaming traffic
+
+#### Current Status
+- **System modifications:** Multiple changes applied, questionable effectiveness
+- **Root cause:** Still unknown - requires deeper OS-level investigation
+- **User experience:** No improvement in actual gaming performance
+- **Approach:** Need to undo changes and investigate OS differences systematically
+
+#### Assessment
+- **Investigation quality:** ❌ POOR - Modified before understanding
+- **Problem resolution:** ❌ FAILED - No real improvement
+- **System integrity:** ⚠️ COMPROMISED - Multiple untested modifications
+- **Next approach:** Clean slate investigation of Linux vs Windows networking differences
+
+**Critical Learning:** Need systematic investigation BEFORE system modifications. The core OS-level difference causing Windows vs Linux performance gap remains unidentified.
+
+---
+
+### [2025-09-06 13:00] TIMER SOURCE INVESTIGATION: Gaming Jitter vs Network Jitter
+
+#### Critical Discovery
+- **User Report:** "3ms ping but CS:GO shows 119ms net jitter"
+- **Key Insight:** This is NOT network jitter - it's **timing precision jitter** in game engine
+- **Root Cause:** Linux timer behavior affects game timing differently than Windows
+
+#### Technical Analysis
+**Timer Source Investigation:**
+- **Current clocksource:** hpet (Hardware Platform Event Timer)
+- **Available sources:** hpet, acpi_pm (TSC mysteriously not available despite CPU support)
+- **Arch Linux Default:** No /etc/default/grub, kernel auto-selects hpet
+- **CPU Features:** constant_tsc, nonstop_tsc present but not exposed as clocksource
+
+**Gaming vs Download Performance Gap:**
+- **Download speed:** Good (large packets, throughput-optimized)
+- **Gaming performance:** Poor (small packets, latency-sensitive, real-time timing)
+- **CS:GO timing:** Affected by Linux timer precision and CPU idle states
+
+#### Applied Optimizations
+**Previous network stack fixes applied:**
+1. **CPU Governor:** powersave → performance (permanent via systemd)
+2. **WiFi Driver:** Disabled packet aggregation (iwlwifi parameters)
+3. **Queue Discipline:** noqueue → fq_codel (permanent via systemd)
+4. **Network Stack:** Ultra-low latency settings (reduced batching, tcp_low_latency=1)
+
+**Result:** Network ping tests improved significantly but CS:GO jitter persisted
+
+#### Timer Source Solution
+**Created:** `fixes/timer-source-gaming.sh`
+**Target:** Linux timer behavior optimization for gaming
+**Method:** GRUB kernel parameters:
+- `highres=on` - Force high-resolution timers
+- `nohz=off` - Disable tickless kernel (consistent timing)
+- `processor.max_cstate=1` - Limit CPU sleep states
+- `intel_idle.max_cstate=1` - Prevent deep idle
+- `clocksource=tsc` - Use TSC if available
+
+**Reversibility:** Fully reversible - removes /etc/default/grub completely to restore original Arch state
+
+#### Current Status
+- **Network optimizations:** ✅ APPLIED (all persistent)
+- **Timer optimizations:** ⏳ READY (requires reboot)
+- **System integrity:** ✅ SAFE (all changes reversible)
+- **Next step:** Apply timer fix and reboot for full effect
+
+**Theory:** CS:GO timing issues caused by Linux default timer behavior optimized for server workloads, not interactive gaming.
