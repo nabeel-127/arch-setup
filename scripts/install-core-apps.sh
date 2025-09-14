@@ -47,12 +47,6 @@ if ! yay -S --needed --noconfirm notion-app-electron; then
     echo "Continuing with other applications..."
 fi
 
-# Cursor IDE - AI-first coding environment via AUR
-echo "Installing Cursor IDE..."
-if ! yay -S --needed --noconfirm cursor-bin; then
-    echo "Failed to install Cursor IDE"
-    echo "Continuing with other applications..."
-fi
 
 # Essential utilities and media support via pacman
 echo "Installing essential utilities and media support..."
@@ -67,6 +61,7 @@ if ! sudo pacman -S --needed --noconfirm \
     nano \
     iw \
     wireless_tools \
+    grub \
     gst-plugins-base \
     gst-plugins-good \
     ffmpeg \
@@ -74,7 +69,8 @@ if ! sudo pacman -S --needed --noconfirm \
     pipewire-pulse \
     wireplumber \
     alsa-utils \
-    qbittorrent; then
+    qbittorrent \
+    libreoffice-still; then
     echo "Some utilities, codecs, or qBittorrent failed to install"
     echo "Continuing with other applications..."
 fi

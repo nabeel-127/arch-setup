@@ -1,4 +1,4 @@
-# Network Jitter Investigation & Fixes
+# System Troubleshooting Log
 
 ## Problem Statement
 CS:GO experiencing severe network jitter on Arch Linux with Intel AX200 WiFi card, while Windows with identical hardware has no issues.
@@ -367,3 +367,63 @@ Auto Control Enabled     : true
 - **Next step:** Apply timer fix and reboot for full effect
 
 **Theory:** CS:GO timing issues caused by Linux default timer behavior optimized for server workloads, not interactive gaming.
+
+---
+
+### [2025-09-06 20:45] AMD GPU POWER PROFILE ISSUE: System-wide 30fps Cap
+
+#### Problem Statement
+- **Issue:** All games capped at exactly 30fps after NBFC thermal management setup
+- **Display:** 165Hz working correctly (164.95Hz measured)
+- **Timing:** 164.95Hz ÷ 5.5 = 30fps - mathematically precise limitation
+- **Scope:** System-wide across ALL games and applications
+
+#### Investigation Process
+**❌ FALSE LEADS (Multiple failed theories):**
+1. **Timer changes (TSC vs HPET)** - Reverted timer optimizations, issue persisted
+2. **NBFC polling intervals** - Changed from 1000ms to 3000ms, no effect
+3. **GNOME Wayland compositor** - Suspected frame pacing issues
+4. **System driver updates** - All packages up to date
+5. **Thermal throttling** - CPU/GPU temperatures normal, no throttling
+
+#### Root Cause Discovery
+**CRITICAL MISTAKE:** During debugging, manually set AMD GPU power profile:
+```bash
+echo 1 | sudo tee /sys/class/drm/card1/device/pp_power_profile_mode
+```
+
+**Investigation revealed:**
+- GPU power profile was set to `3D_FULL_SCREEN*` mode
+- This profile incorrectly limited frame timing instead of optimizing it
+- Default state (no profile) works better for gaming than forced profiles
+
+#### Solution Applied
+**Reset GPU to default power management:**
+```bash
+echo 0 | sudo tee /sys/class/drm/card1/device/pp_power_profile_mode
+echo auto | sudo tee /sys/class/drm/card1/device/power_dpm_force_performance_level
+```
+
+#### Results
+- **30fps cap:** ✅ IMMEDIATELY RESOLVED
+- **Gaming performance:** ✅ RESTORED to full framerate
+- **System stability:** ✅ MAINTAINED with proper NBFC thermal management
+
+#### Critical Lessons
+1. **Never manually set AMD GPU power profiles during debugging**
+2. **Default GPU settings often work better than forced optimizations**
+3. **Investigate methodically - manual changes during debugging can be the actual cause**
+4. **Document all manual changes immediately to avoid confusion**
+
+#### Current GPU State (Working)
+```bash
+# Power profile: Default (no profile set)
+cat /sys/class/drm/card1/device/pp_power_profile_mode
+# Should show no asterisk (*) - means default/automatic
+
+# Power management: Auto
+cat /sys/class/drm/card1/device/power_dpm_force_performance_level
+# Should show: auto
+```
+
+**Assessment:** Problem was self-induced during debugging process. GPU default settings provide optimal gaming performance without manual intervention.

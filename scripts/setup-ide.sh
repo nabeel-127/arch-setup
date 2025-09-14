@@ -5,6 +5,13 @@ set -e
 
 echo "Setting up development environment..."
 
+# Install Visual Studio Code - official Microsoft build via AUR
+echo "Installing Visual Studio Code (official Microsoft build)..."
+if ! yay -S --needed --noconfirm visual-studio-code-bin; then
+    echo "Failed to install Visual Studio Code"
+    echo "Continuing with other development tools..."
+fi
+
 # Install essential development tools (git already installed in package-stores setup)
 echo "Installing essential development tools..."
 sudo pacman -S --needed --noconfirm \

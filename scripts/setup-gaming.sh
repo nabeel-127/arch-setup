@@ -58,6 +58,14 @@ if lspci | grep -qi nvidia; then
     if ! sudo pacman -S --needed --noconfirm lib32-nvidia-utils; then
         echo "Failed to install lib32-nvidia-utils"
     fi
+    
+    # Install nvidia-prime for per-application GPU switching
+    echo "Installing NVIDIA Prime for GPU switching..."
+    if ! sudo pacman -S --needed --noconfirm nvidia-prime; then
+        echo "Failed to install nvidia-prime"
+    else
+        echo "nvidia-prime installed. Use 'prime-run <application>' to run apps with dGPU"
+    fi
 fi
 
 # Install Steam (REQUIRES multilib for 32-bit support)

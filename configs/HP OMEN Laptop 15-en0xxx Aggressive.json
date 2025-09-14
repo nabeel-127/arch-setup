@@ -1,7 +1,7 @@
 {
   "NotebookModel": "HP OMEN Laptop 15-en0xxx Aggressive",
   "Author": "Custom Aggressive Profile",
-  "EcPollInterval": 1000,
+  "EcPollInterval": 3000,
   "ReadWriteWords": false,
   "CriticalTemperature": 100,
   "FanConfigurations": [
@@ -16,6 +16,8 @@
       "ResetRequired": true,
       "FanSpeedResetValue": 255,
       "FanDisplayName": "CPU fan",
+      "Sensors": ["k10temp", "acpitz", "nvme"],
+      "TemperatureAlgorithmType": "Max",
       "TemperatureThresholds": [
         {
           "UpThreshold": 40,
@@ -80,7 +82,8 @@
       "ResetRequired": true,
       "FanSpeedResetValue": 255,
       "FanDisplayName": "GPU fan",
-      "Sensors": ["@GPU"],
+      "Sensors": ["amdgpu", "acpitz", "nvme"],
+      "TemperatureAlgorithmType": "Max",
       "TemperatureThresholds": [
         {
           "UpThreshold": 40,
