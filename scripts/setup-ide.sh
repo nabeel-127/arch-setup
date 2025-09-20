@@ -33,6 +33,13 @@ sudo pacman -S --needed --noconfirm \
     php-apache \
     phpmyadmin
 
+# Install Microsoft SQL Server tools from AUR
+echo "Installing Microsoft SQL Server tools..."
+if ! yay -S --needed --noconfirm mssql-tools; then
+    echo "Failed to install mssql-tools"
+    echo "You can install it manually later with: yay -S mssql-tools"
+fi
+
 # Enable PHP MySQL extensions
 echo 'extension=mysqli' | sudo tee /etc/php/conf.d/mysqli.ini
 echo 'extension=pdo_mysql' | sudo tee /etc/php/conf.d/pdo_mysql.ini

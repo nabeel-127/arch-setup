@@ -13,16 +13,35 @@ if [[ -z "$email" ]]; then
     exit 1
 fi
 
+# Ask for each key type
+read -p "Do you want to generate an ed25519 SSH key? (y/N): " generate_ed25519
+read -p "Do you want to generate an RSA SSH key? (y/N): " generate_rsa
 
-# Generate SSH keys
-echo "Generating ed25519 SSH key..."
-if ! ssh-keygen -t ed25519 -C "$email" -f ~/.ssh/id_ed25519; then
-    echo "Failed to generate ed25519 SSH key"
+# Generate SSH keys based on user choice
+generated_keys=()
+
+if [[ "$generate_ed25519" =~ ^[Yy]$ ]]; then
+    echo "Generating ed25519 SSH key..."
+    if ssh-keygen -t ed25519 -C "$email" -f ~/.ssh/id_ed25519; then
+        generated_keys+=("ed25519")
+    else
+        echo "Failed to generate ed25519 SSH key"
+    fi
 fi
 
-echo "Generating RSA SSH key..."
-if ! ssh-keygen -t rsa -b 4096 -C "$email" -f ~/.ssh/id_rsa; then
-    echo "Failed to generate RSA SSH key"
+if [[ "$generate_rsa" =~ ^[Yy]$ ]]; then
+    echo "Generating RSA SSH key..."
+    if ssh-keygen -t rsa -b 4096 -C "$email" -f ~/.ssh/id_rsa; then
+        generated_keys+=("rsa")
+    else
+        echo "Failed to generate RSA SSH key"
+    fi
+fi
+
+# Check if any keys were generated
+if [[ ${#generated_keys[@]} -eq 0 ]]; then
+    echo "No SSH keys were generated. Exiting."
+    exit 0
 fi
 
 # Start SSH agent and add keys

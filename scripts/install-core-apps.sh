@@ -51,6 +51,7 @@ fi
 # Essential utilities and media support via pacman
 echo "Installing essential utilities and media support..."
 if ! sudo pacman -S --needed --noconfirm \
+    net-tools \
     htop \
     fastfetch \
     tree \
