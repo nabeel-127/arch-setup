@@ -58,6 +58,7 @@ if ! sudo pacman -S --needed --noconfirm \
     unzip \
     wget \
     curl \
+    vi \
     vim \
     nano \
     iw \
