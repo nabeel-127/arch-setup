@@ -5,19 +5,12 @@ set -e
 
 echo "Setting up gaming..."
 
-# Enable multilib repository (REQUIRED by Steam - Steam is 32-bit and needs 32-bit libraries)
-echo "Enabling multilib repository for Steam support..."
+# Ensure multilib repository is enabled (required by Steam)
 if ! grep -q "\[multilib\]" /etc/pacman.conf; then
-    echo "Adding multilib repository to pacman.conf..."
-    echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" | sudo tee -a /etc/pacman.conf
-    echo "Updating package database..."
+    echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" | sudo tee -a /etc/pacman.conf >/dev/null
     sudo pacman -Sy
-else
-    echo "multilib repository already enabled"
 fi
 
-# Install Wine and related tools first (dependencies for gaming)
-echo "Installing Wine and gaming dependencies..."
 if ! sudo pacman -S --needed --noconfirm \
     wine \
     winetricks \
@@ -30,13 +23,7 @@ if ! sudo pacman -S --needed --noconfirm \
     lib32-vulkan-intel \
     vulkan-tools \
     gamemode \
-    lib32-gamemode; then
-    echo "Failed to install some Wine/gaming dependencies"
-fi
-
-# Install additional dependencies for Epic Games Store games (like Rocket League)
-echo "Installing Epic Games Store dependencies..."
-if ! sudo pacman -S --needed --noconfirm \
+    lib32-gamemode \
     lib32-gnutls \
     lib32-libldap \
     lib32-libgpg-error \
@@ -48,62 +35,38 @@ if ! sudo pacman -S --needed --noconfirm \
     lib32-libxinerama \
     lib32-libxslt \
     lib32-libva \
-    lib32-gtk3; then
-    echo "Failed to install some Epic Games Store dependencies"
+    lib32-gtk3 \
+    steam \
+    steam-native-runtime \
+    mangohud \
+    lib32-mangohud \
+    $(lspci | grep -qi nvidia && echo "lib32-nvidia-utils nvidia-prime") \
+; then
+    echo "Some gaming packages failed to install"
 fi
 
-# Install NVIDIA 32-bit libraries for Steam games (if NVIDIA GPU detected)
-if lspci | grep -qi nvidia; then
-    echo "Installing NVIDIA 32-bit libraries for gaming..."
-    if ! sudo pacman -S --needed --noconfirm lib32-nvidia-utils; then
-        echo "Failed to install lib32-nvidia-utils"
-    fi
-    
-    # Install nvidia-prime for per-application GPU switching
-    echo "Installing NVIDIA Prime for GPU switching..."
-    if ! sudo pacman -S --needed --noconfirm nvidia-prime; then
-        echo "Failed to install nvidia-prime"
-    else
-        echo "nvidia-prime installed. Use 'prime-run <application>' to run apps with dGPU"
-    fi
-fi
-
-# Install Steam (REQUIRES multilib for 32-bit support)
-echo "Installing Steam..."
-if ! sudo pacman -S --needed --noconfirm steam; then
-    echo "Failed to install Steam"
-    exit 1
-fi
-
-# Install Steam native runtime (alternative to Steam Runtime)
-echo "Installing Steam native runtime..."
-if ! sudo pacman -S --needed --noconfirm steam-native-runtime; then
-    echo "Failed to install steam-native-runtime (non-critical)"
-fi
-
-# Install Heroic Games Launcher via flatpak
-echo "Installing Heroic Games Launcher..."
 if ! flatpak install -y flathub com.heroicgameslauncher.hgl; then
     echo "Failed to install Heroic Games Launcher"
-    exit 1
 fi
 
-# Install MangoHud for performance monitoring
-echo "Installing MangoHud..."
-if ! sudo pacman -S --needed --noconfirm mangohud lib32-mangohud; then
-    echo "Failed to install MangoHud (non-critical)"
+# Ensure GameMode user service is enabled and active (idempotent)
+if ! systemctl --user is-enabled --quiet gamemoded.service 2>/dev/null; then
+    if ! systemctl --user enable gamemoded.service; then
+        echo "Failed to enable GameMode service"
+    fi
+fi
+if ! systemctl --user is-active --quiet gamemoded.service 2>/dev/null; then
+    if ! systemctl --user start gamemoded.service; then
+        echo "Failed to start GameMode service"
+    fi
 fi
 
-# Configure GameMode service and permissions
-echo "Configuring GameMode service..."
-# Enable and start GameMode daemon for current user
-if ! systemctl --user enable --now gamemoded.service; then
-    echo "Failed to enable GameMode service (non-critical)"
-fi
-
-# Add user to gamemode group for proper permissions
-if ! sudo usermod -aG gamemode $USER; then
-    echo "Failed to add user to gamemode group (non-critical)"
+# Add user to gamemode group only if missing
+TARGET_USER="${SUDO_USER:-$USER}"
+if ! id -nG "$TARGET_USER" | grep -qw gamemode; then
+    if ! sudo usermod -aG gamemode "$TARGET_USER"; then
+        echo "Failed to add user to gamemode group"
+    fi
 fi
 
 echo "Gaming setup complete"
