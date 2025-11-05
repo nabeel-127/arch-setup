@@ -47,6 +47,11 @@ if ! yay -S --needed --noconfirm notion-app-electron; then
     echo "Continuing with other applications..."
 fi
 
+if ! yay -S --needed --noconfirm woeusb; then
+    echo "Failed to install woeusb"
+    echo "Continuing with other applications..."
+fi
+
 
 # Essential utilities and media support via pacman
 echo "Installing essential utilities and media support..."
@@ -109,7 +114,7 @@ fi
 if [[ "$XDG_CURRENT_DESKTOP" == "GNOME" ]]; then
     # GNOME essentials via pacman
     echo "Installing GNOME essentials..."
-    if ! sudo pacman -S --needed --noconfirm power-profiles-daemon gnome-browser-connector; then
+    if ! sudo pacman -S --needed --noconfirm gnome-disk-utility power-profiles-daemon gnome-browser-connector; then
         echo "Failed to install some GNOME essentials"
         echo "Continuing with other applications..."
     else

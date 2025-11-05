@@ -1,79 +1,118 @@
 #!/bin/bash
 
-# Exit on any error
 set -e
 
-# Function to handle errors
 handle_error() {
     echo "Error on line $1. Exiting."
     exit 1
 }
 
-# Trap errors
 trap 'handle_error $LINENO' ERR
 
 echo "Arch Linux Post-Installation Setup"
 echo "===================================="
 
-# Check if user has sudo access and extend timeout to avoid multiple prompts
-echo "Checking sudo access and extending timeout..."
+# Check sudo access and extend timeout
 sudo -v
-# Extend sudo timeout to 60 minutes to avoid repeated password prompts
-sudo bash -c 'echo "Defaults timestamp_timeout=60" >> /etc/sudoers.d/temp_install_timeout'
+sudo bash -c 'echo "Defaults timestamp_timeout=60" >> /etc/sudoers.d/temp_install_timeout' 2>/dev/null || true
 
-# Update system first
-echo "Updating system packages..."
+# Update system
 sudo pacman -Syu --noconfirm
 
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Make all scripts executable
-echo "Making all scripts executable..."
-chmod +x "$SCRIPT_DIR"/scripts/*.sh "$SCRIPT_DIR"/utils/*.sh
+chmod +x "$SCRIPT_DIR"/scripts/*.sh "$SCRIPT_DIR"/utils/*.sh 2>/dev/null || true
 
-# Run setup scripts in order
-echo "Setting up package managers and AUR helper..."
+# Ask upfront which optional scripts to run
+echo
+echo "Select which optional components to install:"
+echo "1. Entertainment applications"
+echo "2. Gaming setup (Steam, Wine, etc.)"
+echo "3. Development environment (IDE, dev tools)"
+echo "4. Thermal management (critical for HP laptops)"
+echo "5. Network optimization (reduces WiFi jitter)"
+echo "6. GNOME desktop configuration"
+echo "7. SSH keys setup"
+echo
+read -p "Enter selections (e.g., 1,2,3 or 'all' for everything): " selections
+
+# Parse selections
+INSTALL_ENTERTAINMENT=false
+INSTALL_GAMING=false
+INSTALL_IDE=false
+INSTALL_THERMAL=false
+INSTALL_NETWORK=false
+INSTALL_GNOME=false
+INSTALL_SSH=false
+
+if [[ "$selections" == "all" ]]; then
+    INSTALL_ENTERTAINMENT=true
+    INSTALL_GAMING=true
+    INSTALL_IDE=true
+    INSTALL_THERMAL=true
+    INSTALL_NETWORK=true
+    INSTALL_GNOME=true
+    INSTALL_SSH=true
+else
+    IFS=',' read -ra ADDR <<< "$selections"
+    for i in "${ADDR[@]}"; do
+        case "${i// /}" in
+            1) INSTALL_ENTERTAINMENT=true ;;
+            2) INSTALL_GAMING=true ;;
+            3) INSTALL_IDE=true ;;
+            4) INSTALL_THERMAL=true ;;
+            5) INSTALL_NETWORK=true ;;
+            6) INSTALL_GNOME=true ;;
+            7) INSTALL_SSH=true ;;
+        esac
+    done
+fi
+
+echo
+echo "Starting installation (core apps will always be installed)..."
+echo
+
+# Always run these core scripts
 bash "$SCRIPT_DIR/scripts/setup-package-stores.sh"
-
-echo "Installing core applications..."
 bash "$SCRIPT_DIR/scripts/install-core-apps.sh"
 
-echo "Setting up gaming..."
-bash "$SCRIPT_DIR/scripts/setup-gaming.sh"
+# Run optional scripts based on selection
+if [ "$INSTALL_ENTERTAINMENT" = true ]; then
+    bash "$SCRIPT_DIR/scripts/install-entertainment.sh"
+fi
 
-# Ask if user wants to setup SSH keys
-echo
-read -p "Do you want to setup SSH keys for Git? (y/n): " setup_ssh
-case "$setup_ssh" in
-    [Yy]|[Yy][Ee][Ss])
-        echo "Setting up SSH keys..."
-        bash "$SCRIPT_DIR/utils/setup-ssh.sh"
-        ;;
-    *)
-        echo "Skipping SSH setup"
-        ;;
-esac
+if [ "$INSTALL_GAMING" = true ]; then
+    bash "$SCRIPT_DIR/scripts/setup-gaming.sh"
+fi
 
-echo "Setting up development environment..."
-bash "$SCRIPT_DIR/scripts/setup-ide.sh"
+if [ "$INSTALL_IDE" = true ]; then
+    bash "$SCRIPT_DIR/scripts/setup-ide.sh"
+fi
 
-echo "Setting up thermal management (critical for HP laptops)..."
-bash "$SCRIPT_DIR/scripts/setup-thermal.sh"
+if [ "$INSTALL_THERMAL" = true ]; then
+    bash "$SCRIPT_DIR/scripts/setup-thermal.sh"
+fi
 
-echo "Setting up network optimization (reduces WiFi jitter)..."
-bash "$SCRIPT_DIR/scripts/setup-network-optimization.sh"
+if [ "$INSTALL_NETWORK" = true ]; then
+    bash "$SCRIPT_DIR/scripts/setup-network-optimization.sh"
+fi
 
-echo "Configuring GNOME desktop..."
-bash "$SCRIPT_DIR/utils/setup-gnome.sh"
+if [ "$INSTALL_GNOME" = true ]; then
+    bash "$SCRIPT_DIR/utils/setup-gnome.sh"
+fi
 
-# System cleanup - remove orphaned packages (Arch equivalent of apt autoremove)
-echo "Removing orphaned packages..."
-sudo pacman -Rns --noconfirm $(pacman -Qtdq) 2>/dev/null || echo "No orphaned packages to remove"
+if [ "$INSTALL_SSH" = true ]; then
+    bash "$SCRIPT_DIR/utils/setup-ssh.sh"
+fi
 
-# Clean up sudo timeout extension
-echo "Cleaning up temporary sudo settings..."
+# System cleanup
+sudo pacman -Rns --noconfirm $(pacman -Qtdq) 2>/dev/null || true
+
+# Clean up sudo timeout
 sudo rm -f /etc/sudoers.d/temp_install_timeout
 
+echo
 echo "Arch Linux setup complete!"
-echo "System cleanup finished. Please reboot to ensure all changes take effect."
+echo "Please reboot to ensure all changes take effect."
